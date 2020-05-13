@@ -1,11 +1,17 @@
 {
   "name": "proca-tweet",
   "version": "0.1.0",
-  "private": true,
+  "description": "widget to tweet to targets",
+  "repository": "https://github.com/TechToThePeople/proca-tweet.git",
+  "author": "Xavier Dutoit",
+  "license": "agpl3",
   "dependencies": {
+    "@material-ui/core": "^4.9.13",
+    "@material-ui/icons": "^4.9.1",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
+    "dotenv": "^8.2.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1"
@@ -30,5 +36,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "twitter": "^1.7.1"
   }
 }
