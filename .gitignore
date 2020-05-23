@@ -2,7 +2,7 @@
 
 # private
 .env
-/data
+/src/data
 
 # dependencies
 /node_modules

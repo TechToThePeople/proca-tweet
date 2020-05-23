@@ -29,6 +29,7 @@ function formatProfile (d) {
   const keys= "id,name,screen_name,location,description,url,profile_image_url_https,followers_count,lang".split(",");  keys.forEach(k => {
     result[k] = d[k];
   });
+  result.country="";
   return result;
 };
 
