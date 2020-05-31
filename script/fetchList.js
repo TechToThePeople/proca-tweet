@@ -16,7 +16,7 @@ if (!listid) {
   process.exit(1);
 }
 
-var params = {list_id: listid, skip_status:true};
+var params = {list_id: listid, skip_status:true, count:5000};
 
 function formatProfile (d) {
   let result = {};

@@ -19,7 +19,8 @@
     "react-scripts": "3.4.1"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "nwb serve-react-app",
+    "oldstart": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -40,6 +41,7 @@
     ]
   },
   "devDependencies": {
+    "react-snapshot": "^1.3.0",
     "twitter": "^1.7.1"
   }
 }
