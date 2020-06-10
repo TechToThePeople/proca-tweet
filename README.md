@@ -1,6 +1,14 @@
 
 https://twitter.com/i/lists/918762298877112320/members
 
+Convert a json of array of objects into a csv:
+
+    jq -r '(.[0] | keys_unsorted), (.[] | to_entries | map(.value))|@csv' 
+
+sort a json:
+
+    jq '. | sort_by(-.followers_count)'
+
 ## Available Scripts
 
 In the project directory, you can run:
@@ -30,3 +38,4 @@ Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
+node script/fetchList.js 1267052348855255040 > src/data/supporters.json 

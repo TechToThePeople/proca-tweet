@@ -1,17 +1,13 @@
 import React from 'react';
-//import ReactDOM from 'react-dom';
-import {render } from 'react-snapshot';
+import ReactDOM from 'react-dom';
 
 import './index.css';
 import App from './App';
 //import * as serviceWorker from './serviceWorker';
 
-//ReactDOM.render(
-render(
-
+ReactDOM.render(
   <React.StrictMode>
-    <div>aaa</div>
-    <App />
+    <App list={window.proca_twitter_list} actionText={window.proca_action_text}/>
   </React.StrictMode>,
   document.getElementById('app')
 );

@@ -10,15 +10,15 @@ const config = {
 };
 var client = new Twitter(config);
 
-var listid = process.argv[2];
-if (!listid) {
-  console.error("you need to give the list id as param\n$node fetchList.js {listid}");
+var screenName = process.argv[2];
+if (!screenName) {
+  console.error("you need to give the user screen_name as param\n$node fetchLists.js {eucamaigns}");
   process.exit(1);
 }
 
-var params = {list_id: listid, skip_status:true, count:5000};
+var params = {screen_name: screenName, skip_status:true, count:5000};
 
-function formatProfile (d) {
+function formatList (d) {
   let result = {};
   try {
   d.url = d.entities.url.urls[0].expanded_url;
@@ -30,17 +30,17 @@ function formatProfile (d) {
     // let's replace
     d.description = d.description.replace(d.entities.description.urls[0].url,d.entities.description.urls[0].display_url);
   }
-  const keys= "id,name,screen_name,location,description,url,profile_image_url_https,followers_count,lang".split(",");  keys.forEach(k => {
+  const keys= "id_str,name,name,description,uri,subscriber_count,member_count".split(",");  keys.forEach(k => {
     result[k] = d[k];
   });
   result.country="";
   return result;
 };
 
-client.get('lists/members', params)
+client.get('lists/list', params)
   .then ( data => {
-    const r = data.users.map (d => formatProfile(d));
-    r.sort((a, b) => (a.followers_count < b.followers_count) ? 1 : -1)
+    const r = data.map (d => formatList(d));
+    r.sort((a, b) => (a.subscribers_count < b.subscribers_count) ? 1 : -1)
 
     process.stdout.write(JSON.stringify(r,null,1));
   })
