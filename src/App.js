@@ -11,7 +11,8 @@ import TwitterList from './components/TwitterList';
 //import SelectCountry from './component/SelectCountry';
 import TwitterText from './components/TwitterText';
 //import profiles  from './data/euhead';
-import profiles  from './data/supporters';
+//import profiles  from './data/supporters';
+let profiles=[];
 function App(props) {
  
 if (props.list) {
@@ -28,9 +29,8 @@ if (props.list) {
   return (
     <Container maxWidth="lg">
     <div className="App">
-      <Twitter targets={{twitter_url:props.list}} actionPage={actionpage} actionUrl="" actionText={actionText}/>
+      <Twitter targets={{twitter_url:props.list}} actionPage={actionpage} actionUrl={props.actionUrl} actionText={actionText}/>
      
-      <TwitterList profiles={profiles} actionPage={actionpage} actionUrl="" actionText={actionText}/>
     </div>
     </Container>
   );

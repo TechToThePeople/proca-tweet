@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-var Twitter = require('twitter');
+var Twitter = require('twitter-lite');
 
 const config = {
   consumer_key: process.env.TWITTER_CONSUMER_KEY,

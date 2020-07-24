@@ -7,7 +7,7 @@ import App from './App';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App list={window.proca_twitter_list} actionText={window.proca_action_text}/>
+    <App list={window.proca_twitter_list} actionText={window.proca_action_text} actionUrl={window.location.toString()}/>
   </React.StrictMode>,
   document.getElementById('app')
 );
