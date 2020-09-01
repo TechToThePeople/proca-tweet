@@ -1,6 +1,16 @@
 
 https://twitter.com/i/lists/918762298877112320/members
 
+VDL commission
+https://twitter.com/i/lists/1164159635047231489
+
+diplomatic missions in the EU
+https://twitter.com/i/lists/100814734
+
+EU bubble journalists
+https://twitter.com/i/lists/58265333
+https://twitter.com/i/lists/68289112
+
 Convert a json of array of objects into a csv:
 
     jq -r '(.[0] | keys_unsorted), (.[] | to_entries | map(.value))|@csv' 

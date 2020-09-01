@@ -30,7 +30,7 @@ function formatProfile (d) {
     // let's replace
     d.description = d.description.replace(d.entities.description.urls[0].url,d.entities.description.urls[0].display_url);
   }
-  const keys= "id,name,screen_name,location,description,url,profile_image_url_https,followers_count,lang".split(",");  keys.forEach(k => {
+  const keys= "id,name,screen_name,location,description,url,profile_image_url_https,followers_count,lang,verified".split(",");  keys.forEach(k => {
     result[k] = d[k];
   });
   result.country="";
