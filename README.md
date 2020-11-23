@@ -1,5 +1,11 @@
 
+
 https://twitter.com/i/lists/918762298877112320/members
+
+MEPs
+https://twitter.com/i/lists/1300528530804158464
+
+node script/fetchList.js 1300528530804158464 | jq -r '(.[0] | keys_unsorted), (.[] | to_entries | map(.value))|@csv' > mep.csv
 
 VDL commission
 https://twitter.com/i/lists/1164159635047231489
@@ -18,6 +24,9 @@ Convert a json of array of objects into a csv:
 sort a json:
 
     jq '. | sort_by(-.followers_count)'
+
+filter the json:
+    kq '[ .[] | select(.verified == false) ]'
 
 ## Available Scripts
 

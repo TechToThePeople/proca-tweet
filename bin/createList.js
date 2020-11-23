@@ -3,8 +3,8 @@ const Bottleneck = require("bottleneck/es5");
 
 const fs = require('fs');
 const limiter = new Bottleneck({
-  maxConcurrent: 3,
-  minTime: 500
+  maxConcurrent: 30,
+  minTime: 200
 });
 
 var Twitter = require('twitter-lite');
@@ -76,9 +76,13 @@ async function  upsertMembers (listid) {
 
     const add = names.filter (d => {
       //console.log("checking "+d[sn]);
+      if (!d[sn]) {
+        console.error("  " +d.first_name +" "+d.last_name+" doesn't have a twitter account" + " id "+d.epid);
+//        console.log(d);
+        return false;
+      }
       const found = existing.users.some (e => {
         if (d[sn] === e.screen_name) {
-          console.log("duplicate", d[sn]);
           dupes.push[e.screen_name];
           return true;
         }
@@ -87,16 +91,22 @@ async function  upsertMembers (listid) {
       return !found;
     });
 
+    console.log("check for remove from "+existing.users.length);
+    const remove = existing.users.filter (d => {
+      return dupes.includes(d.screen_name);
+    });
+	  console.log(remove);
+    console.log("removing " + remove.length);
+
     console.log("adding " + add.length);
     const slowCreateMember = limiter.wrap(createMember);
     add.map(async d => {
       try {
 
         const r = await slowCreateMember(d[sn],listid);
-        console.log("added "+d[sn]);
       } catch (error) {
-        console.error (error.errors);
-        process.exit(1);
+        console.error (d[sn] + " " +error.errors[0].message +" code:"+error.errors[0].code);
+//        console.error (error);
         return error;
       };
     });
@@ -109,9 +119,9 @@ async function  upsertMembers (listid) {
 //    process.exit(1);
 
 const createMember= async (screenName,listid) => {
-    console.log(".");
+//    console.log("adding ",screenName);
     const data = await client.post('lists/members/create', {list_id:listid, screen_name:screenName})
-      console.log("added ",screenName,listid);
+//    console.log("added ",screenName,listid);
     return data;
 }
 
