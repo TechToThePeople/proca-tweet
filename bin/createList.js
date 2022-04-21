@@ -1,88 +1,138 @@
-require('dotenv').config();
+require("dotenv").config();
 const Bottleneck = require("bottleneck/es5");
 
-const fs = require('fs');
+const fs = require("fs");
 const limiter = new Bottleneck({
-  maxConcurrent: 30,
-  minTime: 200
+  maxConcurrent: 2,
+  minTime: 500,
 });
 
-var Twitter = require('twitter-lite');
+var Twitter = require("twitter-lite");
 
 const config = {
   consumer_key: process.env.TWITTER_CONSUMER_KEY,
   consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
   access_token_key: process.env.TWITTER_ACCESS_TOKEN_KEY,
-  access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET
+  access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
 };
 var client = new Twitter(config);
 let sn = null; // name of the attribute in the json containing the twitter screen name
+let getScreenName = (d) => console.log("aaa");
 
 const listname = process.argv[2];
 const file = process.argv[3];
 let listid = null;
 if (!listname || !file) {
-  console.error("you need to give the list name and json file as param\n$node createList.js {listname file.json}");
+  console.error(
+    "you need to give the list name and json file as param\n$node createList.js {listname file.json}"
+  );
   process.exit(1);
 }
 
-
 let names = JSON.parse(fs.readFileSync(file));
-["Twitter","screen_name","screenname","twitter"].forEach (d => {
-  if (names[0][d]) {
-    sn = d;
-  }
-})
 
-console.log(names.length +" records on the file");
+// trying to find where the screenname field is
+const guessField = (i) => {
+  const found = ["Twitter", "screen_name", "screenname", "twitter"].find(
+    (d) => {
+      if (names[i].field && typeof names[i].field[d] !== "undefined") {
+        sn = d;
+        getScreenName = (d) => d.field[sn];
+        return true;
+      }
+      if (names[i].fields && typeof names[i].fields[d] !== "undefined") {
+        sn = d;
+        getScreenName = (d) => d.fields[sn];
+        return true;
+      }
+      if (typeof names[i][d] !== "undefined") {
+        sn = d;
+        getScreenName = (d) => d[sn];
+        return true;
+      }
+      return false;
+    }
+  );
+  return found;
+};
 
-upsertList(listname) // find of create the list
-.then (async listId => {
-  const r = await upsertMembers (listId);
+let found = false;
+names.forEach((d, i) => {
+  if (found) return;
+  found = guessField(i);
 });
 
-async function upsertList (listname) {
+if (!found) {
+  console.error("can't find the screenname field in the json file", names[0]);
+  process.exit(1);
+}
+
+console.log(names.length + " records on the file");
+
+upsertList(listname) // find of create the list
+  .then(async (listId) => {
+    const r = await upsertMembers(listId);
+  });
+
+async function upsertList(listname) {
   try {
-    data = await client.get('lists/show', {slug:listname,owner_screen_name:process.env.TWITTER_SCREEN_NAME});
+    console.log(
+      "looking for",
+      listname,
+      "owned by",
+      process.env.TWITTER_SCREEN_NAME
+    );
+    let list_id = null;
+    const data = await client.get("lists/list");
+    //data = await client.get('lists/show', {slug:listname,owner_screen_name:process.env.TWITTER_SCREEN_NAME});
 
-    if (!data.id_str) {
-      console.log("eerror");
+    list_id = data.find((d) => d.slug === listname || d.name == listname);
+
+    if (!list_id) {
+      console.log(listname + " not found");
+      thow(new Error("not existing"));
     }
-      return data.id_str;
-
-  }  catch (error) {
-    console.log("create list ",listname);
+    return list_id.id_str;
+  } catch (error) {
+    console.log("create list ", listname);
     return await createList();
-  };
+  }
 }
 
 //    process.exit(1);
 
-const createList= async () => {
+const createList = async () => {
   try {
-  data = client.post('lists/create', {name:listname, description:"created by proca"})
-  return data.id_str;
+    data = await client.post("lists/create", {
+      name: listname,
+      description: "created by proca",
+    });
+    console.log("list", data.id_str);
+    return data.id_str;
   } catch (error) {
-    console.error (error);
+    console.error("can't create list", error);
     process.exit(1);
-  };
-}
+  }
+};
 
-async function  upsertMembers (listid) {
-  const params = {list_id: listid, skip_status:true, count:5000};
+async function upsertMembers(listid) {
+  const params = { list_id: listid, skip_status: true, count: 5000 };
   try {
-    const existing = await client.get('lists/members', params);
+    const existing = await client.get("lists/members", params);
+    let noaccount = 0;
     let dupes = [];
-
-    const add = names.filter (d => {
-      //console.log("checking "+d[sn]);
-      if (!d[sn]) {
-        console.error("  " +d.first_name +" "+d.last_name+" doesn't have a twitter account" + " id "+d.epid);
-//        console.log(d);
+    console.log("number of members in the list", existing.users.length);
+    const add = names.filter((d) => {
+      console.log("X", getScreenName(d));
+      if (!getScreenName(d)) {
+        console.log("screename", getScreenName(d), d);
+        console.error(":::" + d.name + " doesn't have a twitter account");
+        noaccount++;
         return false;
       }
-      const found = existing.users.some (e => {
-        if (d[sn] === e.screen_name) {
+      console.log("-----");
+      const found = existing.users.find((e) => {
+        if (getScreenName(d) === e.screen_name) {
           dupes.push[e.screen_name];
           return true;
         }
@@ -91,37 +141,45 @@ async function  upsertMembers (listid) {
       return !found;
     });
 
-    console.log("check for remove from "+existing.users.length);
-    const remove = existing.users.filter (d => {
+    console.log("check for remove from " + existing.users.length);
+    const remove = existing.users.filter((d) => {
       return dupes.includes(d.screen_name);
     });
-	  console.log(remove);
+    console.log("invalid records (no " + sn + ") " + noaccount);
     console.log("removing " + remove.length);
 
     console.log("adding " + add.length);
     const slowCreateMember = limiter.wrap(createMember);
-    add.map(async d => {
+    add.map(async (d) => {
       try {
-
-        const r = await slowCreateMember(d[sn],listid);
+        console.log("...add " + getScreenName(d));
+        const r = await slowCreateMember(getScreenName(d), listid);
       } catch (error) {
-        console.error (d[sn] + " " +error.errors[0].message +" code:"+error.errors[0].code);
-//        console.error (error);
+        if (error.errors)
+          console.error(
+            getScreenName(d) +
+              " " +
+              error.errors[0].message +
+              " code:" +
+              error.errors[0].code
+          );
+        //        console.error (error);
         return error;
-      };
+      }
     });
   } catch (error) {
-    console.error (error.errors);
-  };
-
+    console.error(error.errors);
+  }
 }
 
 //    process.exit(1);
 
-const createMember= async (screenName,listid) => {
-//    console.log("adding ",screenName);
-    const data = await client.post('lists/members/create', {list_id:listid, screen_name:screenName})
-//    console.log("added ",screenName,listid);
-    return data;
-}
-
+const createMember = async (screenName, listid) => {
+  //    console.log("adding ",screenName);
+  const data = await client.post("lists/members/create", {
+    list_id: listid,
+    screen_name: screenName,
+  });
+  console.log("added ", screenName, listid);
+  return data;
+};
