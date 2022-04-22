@@ -3,7 +3,7 @@ const Bottleneck = require("bottleneck/es5");
 
 const fs = require("fs");
 const limiter = new Bottleneck({
-  maxConcurrent: 2,
+  maxConcurrent: 1,
   minTime: 500,
 });
 
@@ -18,13 +18,15 @@ const config = {
 var client = new Twitter(config);
 let sn = null; // name of the attribute in the json containing the twitter screen name
 let getScreenName = (d) => console.log("aaa");
+let listid = null;
 
 const listname = process.argv[2];
-const file = process.argv[3];
-let listid = null;
+let file = process.argv[3];
+if (!file)
+  file = "../proca/config/target/source/"+listname+".json"
 if (!listname || !file) {
   console.error(
-    "you need to give the list name and json file as param\n$node createList.js {listname file.json}"
+    "you need to give the list name and json file as param\n$node createList.js listname {file.json}"
   );
   process.exit(1);
 }
@@ -123,14 +125,12 @@ async function upsertMembers(listid) {
     let dupes = [];
     console.log("number of members in the list", existing.users.length);
     const add = names.filter((d) => {
-      console.log("X", getScreenName(d));
       if (!getScreenName(d)) {
         console.log("screename", getScreenName(d), d);
         console.error(":::" + d.name + " doesn't have a twitter account");
         noaccount++;
         return false;
       }
-      console.log("-----");
       const found = existing.users.find((e) => {
         if (getScreenName(d) === e.screen_name) {
           dupes.push[e.screen_name];

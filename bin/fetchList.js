@@ -1,4 +1,5 @@
 require('dotenv').config();
+const fs = require("fs");
 
 var Twitter = require('twitter-lite');
 
@@ -8,15 +9,46 @@ const config = {
   access_token_key: process.env.TWITTER_ACCESS_TOKEN_KEY,
   access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET
 };
-var client = new Twitter(config);
+let client = new Twitter(config);
 
-var listid = process.argv[2];
+let listid = process.argv[2];
 if (!listid) {
   console.error("you need to give the list id as param\n$node fetchList.js {listid}");
   process.exit(1);
 }
 
-var params = {list_id: listid, skip_status:true, count:5000};
+const saveTargets = (campaignName, targets) => {
+  const fileName = "../proca/config/target/twitter/" + campaignName + ".json";
+  fs.writeFileSync(fileName, JSON.stringify(targets, null, 2));
+  console.log("saving into ",fileName);
+  return fileName;
+}
+
+
+async function getListID(listname) {
+  try {
+    console.log(
+      "looking for",
+      listname,
+      "owned by",
+      process.env.TWITTER_SCREEN_NAME
+    );
+    let list_id = null;
+    const data = await client.get("lists/list");
+    //data = await client.get('lists/show', {slug:listname,owner_screen_name:process.env.TWITTER_SCREEN_NAME});
+
+    list_id = data.find((d) => d.slug === listname || d.name == listname);
+
+    if (!list_id) {
+      console.log(listname + " not found");
+      thow(new Error("not existing"));
+    }
+    return list_id.id_str;
+  } catch (error) {
+    console.error("can't find list", listname);
+    process.exit(1);
+  }
+}
 
 function formatProfile (d) {
   let result = {};
@@ -37,14 +69,22 @@ function formatProfile (d) {
   return result;
 };
 
+
+(async (idorname) => { 
+  listid = await getListID (idorname);
+  let params = {list_id: listid, skip_status:true, count:5000};
+
+
 client.get('lists/members', params)
   .then ( data => {
     const r = data.users.map (d => formatProfile(d));
     r.sort((a, b) => (a.followers_count < b.followers_count) ? 1 : -1)
 
-    process.stdout.write(JSON.stringify(r,null,1));
+    saveTargets (idorname,r);
+//    process.stdout.write(JSON.stringify(r,null,1));
   })
   .catch (error => {
     console.error (error);
     process.exit(1);
   });
+})(process.argv[2]);
