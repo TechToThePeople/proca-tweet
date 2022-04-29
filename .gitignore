@@ -3,7 +3,8 @@
 # private
 .env
 /src/data
-
+sqlite/auth.json
+sqlite/*.db
 # dependencies
 /node_modules
 /.pnp
