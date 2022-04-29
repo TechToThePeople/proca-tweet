@@ -1,60 +1,31 @@
+This does sync a list of targets from proca to a twitter list and back. It allows to enrich the contact details with extra informations, like the picture of the contact or the number of supporters.
+
+## big picture
+
+1. The list of targets starts on airtable. it can be edited by the client and have whatever format needed.
+1. a custom workflow on airtable does fetch the list, convert to what it to proca format and saves it into proca-config (into target/source/{campaign}.json
+1. in proca-config ($proca/config) git pull
+1. $proca node bin/pushTargets.js {campaign} does take that list and adds it as targets to the campaign (from proca)
+1. $proca node bin/pullTargets.js {campaign} does take the list from the server and saves it into proca-config target/server/{campaign}.json (mostly to add the target id and the email status)
+1. $proca-tweet node bin/push {campaign} takes the source from proca and push it to a twitter list
+1. $proca-tweet node bin/pull {campaign} takes the list and saves it  into proca-config target/twitter/{campaign.json}
+1. $proca node bin/buildTarget.json {campaign} takes the server and the twitter and build a public list into proca-config target/twitter/public/{campaign.json}
+1. in proca-config: git add target + commit + push
+1. $proca bash bin/n8npull.sh updates the lists to the server and the target/public one is now accessible as https://widget.proca.app/t/{campaign.json}
+
+## airtable
+
+https://workflow.proca.app/workflow/24
+
+## twitter list
+
+!! we might hit various twitter restrictions, keep an eye on the errors, be ready to run multiple times
+
+## build public list
+
+it has various options, eg to add or not the email (for client side mtt), --meps format (to add the name of the party as description...)
 
 
-https://twitter.com/i/lists/918762298877112320/members
 
-MEPs
-https://twitter.com/i/lists/1300528530804158464
 
-node script/fetchList.js 1300528530804158464 | jq -r '(.[0] | keys_unsorted), (.[] | to_entries | map(.value))|@csv' > mep.csv
 
-VDL commission
-https://twitter.com/i/lists/1164159635047231489
-
-diplomatic missions in the EU
-https://twitter.com/i/lists/100814734
-
-EU bubble journalists
-https://twitter.com/i/lists/58265333
-https://twitter.com/i/lists/68289112
-
-Convert a json of array of objects into a csv:
-
-    jq -r '(.[0] | keys_unsorted), (.[] | to_entries | map(.value))|@csv' 
-
-sort a json:
-
-    jq '. | sort_by(-.followers_count)'
-
-filter the json:
-    kq '[ .[] | select(.verified == false) ]'
-
-## Available Scripts
-
-In the project directory, you can run:
-
-node script/fetchList.js 918762298877112320 > euhead.json
-
-### `yarn start`
-
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
-
-### `yarn test`
-
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `yarn build`
-
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-node script/fetchList.js 1267052348855255040 > src/data/supporters.json 
