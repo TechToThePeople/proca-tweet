@@ -126,12 +126,15 @@ async function upsertMembers(listid) {
     let dupes = [];
     console.log("number of members in the list", existing.users.length);
     const add = names.filter((d) => {
+      if (Object.keys(d).length === 0) 
+        return false;
       if (!getScreenName(d)) {
         console.log("screename", getScreenName(d), d);
         console.error(":::" + d.name + " doesn't have a twitter account");
         noaccount++;
         return false;
       }
+
       const found = existing.users.find((e) => {
         if (getScreenName(d) === e.screen_name) {
           dupes.push[e.screen_name];
@@ -141,6 +144,7 @@ async function upsertMembers(listid) {
       });
       return !found;
     });
+console.log("add",add);
 
     console.log("check for remove from " + existing.users.length);
     const remove = existing.users.filter((d) => {

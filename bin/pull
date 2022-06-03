@@ -71,8 +71,19 @@ function formatProfile (d) {
 };
 
 
-(async (idorname) => { 
-  listid = await getListID (idorname);
+const isId=(id) => 
+  ( !isNaN(id) &&
+         !isNaN(parseFloat(id))
+);
+
+(async (idorname) => {
+  let filename = idorname;
+  if (isId (idorname)) {
+    listid= idorname;
+    filename = process.argv[3] || idorname;
+  }else {
+    listid = await getListID (idorname);
+  }
   let params = {list_id: listid, skip_status:true, count:5000};
 
 
