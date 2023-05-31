@@ -1,17 +1,22 @@
-const getProfile=require ('./src/twitter.js');
+//const getProfile=require ('./src/twitter.js');
+import getProfile from './src/twitter.js';
 
-const config = {
+/*const config = {
   consumer_key: TWITTER_CONSUMER_KEY,
   consumer_secret: TWITTER_CONSUMER_SECRET,
   access_token_key: TWITTER_ACCESS_TOKEN_KEY,
   access_token_secret: TWITTER_ACCESS_TOKEN_SECRET
-};
+};*/
+
+const config = {
+  bearer_token: TWITTER_BEARER_TOKEN
+}
 
 
 async function handleRequest(request) {
   const url = new URL(request.url)
-  console.log(url);
-  const screen_name = url.searchParams.get('screen_name');
+  console.log(request.url,url);
+  const screen_name = url.searchParams.get('screen_name') || "eucampaign";
   let response = await getProfile (screen_name, config);
   // Recreate the response so we can modify the headers
   return JSONResponse (response);

@@ -17,6 +17,10 @@ function format (d) {
   user_keys.forEach(k => {
     result[k] = d[k];
   });
+  if (result.profile_image_url_https) {
+    result.profile_image_url_https = result.profile_image_url_https.replace("_normal","_400x400").replace("_standard","_400x400");
+  }
+console.log(result);
   return result;
 };
 
@@ -30,6 +34,9 @@ module.exports = async function getScreenName (screenName,config) {
     })
     .catch (error => {
       console.error (error);
+      if (error.errors[0].code === 32) {
+      return {error:true,message:[{code:32, message:"Musk has blocked us again"}]};
+      }
       return {error:true,message:error};
     });
 };
