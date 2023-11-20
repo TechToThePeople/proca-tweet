@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@cloudflare/wrangler": "^1.21.0",
+    "bottleneck": "^2.19.5",
+    "dotenv": "^16.0.3",
+    "twitter-lite": "^1.1.0"
+  }
+}
