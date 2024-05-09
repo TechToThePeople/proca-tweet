@@ -14,8 +14,10 @@ function format (d) {
   }
   d.created_at = new Date(d.created_at).toISOString().substr(0,10);
 
-  if (d.profile_image_url_https) 
-    d.profile_image_url_https = d.profile_image_url_https.replace("_normal","_400x400"); 
+  if (d.profile_image_url_https)  {
+    d.profile_image_url_https = d.profile_image_url_https.replace('https://pbs.twimg.com/profile_images/','https://pic.proca.app/twimg/');
+    d.avatar = d.profile_image_url_https.replace("_normal","_400x400"); 
+  }
 
   const user_keys= "id,name,screen_name,location,description,url,profile_image_url_https,followers_count,friends_count,statuses_count,created_at,lang".split(",");
   user_keys.forEach(k => {

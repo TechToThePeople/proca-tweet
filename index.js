@@ -48,7 +48,6 @@ function handleOptions(request) {
 addEventListener('fetch', event => {
   const request = event.request
   const url = new URL(request.url)
-  console.log(request.url);
   if (true) {
     console.log("PROXY_ENDPOINT");
     if (request.method === 'OPTIONS') {
@@ -58,7 +57,6 @@ addEventListener('fetch', event => {
       request.method === 'GET' ||
       request.method === 'POST'
     ) {
-    console.log("GET OR POST OR HEAD");
       // Handle requests to the API server
       event.respondWith(handleRequest(request))
     } else {
