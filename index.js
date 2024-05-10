@@ -17,6 +17,7 @@ async function handleRequest(request) {
   const url = new URL(request.url)
   console.log(request.url,url);
   const screen_name = url.searchParams.get('screen_name') || "eucampaign";
+console.log("screen_name",screen_name);
   let response = await getProfile (screen_name, config);
   // Recreate the response so we can modify the headers
   return JSONResponse (response);
